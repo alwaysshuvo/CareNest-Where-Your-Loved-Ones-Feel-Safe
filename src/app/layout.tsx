@@ -1,5 +1,6 @@
 import Footer from "./components/common/Footer";
 import Navbar from "./components/common/Navbar";
+import SessionProviderWrapper from "./context/SessionProviderWrapper";
 import "./globals.css";
 
 
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Navbar />
-        <main className="min-h-screen">{children}</main>
+        <SessionProviderWrapper>
+          <main className="min-h-screen">{children}</main>
+        </SessionProviderWrapper>
         <Footer />
       </body>
     </html>
