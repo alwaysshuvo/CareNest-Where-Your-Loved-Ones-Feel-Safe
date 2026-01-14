@@ -1,7 +1,13 @@
+import Hero from "./components/home/Hero";
+
+import Services from "./components/home/Services";
+
 export default function Home() {
   return (
     <main>
-      <h1>CareNest</h1>
+      <Hero />
+      <Services />
+      
     </main>
   );
 }
