@@ -14,7 +14,7 @@ export default function Navbar() {
           <Image
             src="/assets/logo-icon.png"
             alt="CareNest Logo"
-            width={65} 
+            width={65}
             height={65}
             priority
             className="object-contain"
@@ -39,9 +39,14 @@ export default function Navbar() {
             My Bookings
           </Link>
 
-          <Button size="sm" className="ml-2 bg-purple-600 hover:bg-purple-700">
-            Login
-          </Button>
+          <Link href="/login">
+            <Button
+              size="sm"
+              className="ml-2 bg-purple-600 hover:bg-purple-700"
+            >
+              Login
+            </Button>
+          </Link>
         </nav>
 
         {/* Mobile Menu */}

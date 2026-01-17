@@ -1,0 +1,191 @@
+"use client";
+
+import { motion } from "framer-motion";
+import Image from "next/image";
+import {
+  Mail,
+  Lock,
+  User,
+  Phone,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { useState } from "react";
+import { toast, Toaster } from "react-hot-toast";
+import Link from "next/link";
+
+/* Animation Variants */
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
+export default function RegisterPage() {
+  const [showPass, setShowPass] = useState(false);
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const form = e.target as HTMLFormElement;
+    const name = (form.name as HTMLInputElement).value;
+    const email = (form.email as HTMLInputElement).value;
+    const phone = (form.phone as HTMLInputElement).value;
+    const password = (form.password as HTMLInputElement).value;
+
+    if (!name || !email || !phone || !password) {
+      toast.error("All fields are required");
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      toast.error("Invalid email address");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    toast.success("Registration system will be added later");
+  };
+
+  return (
+    <>
+      <Toaster position="top-right" />
+      <section className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="grid w-full max-w-5xl grid-cols-1 md:grid-cols-2 overflow-hidden rounded-3xl bg-white shadow-2xl"
+        >
+          {/* LEFT SIDE */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            className="relative hidden md:flex flex-col justify-end overflow-hidden bg-purple-700 p-10 text-white"
+          >
+            <Image
+              src="/assets/register.png"
+              alt="CareNest Trusted Care"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-purple-700/30 to-purple-600/20" />
+
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold mb-4">
+                Join CareNest Today
+              </h2>
+              <p className="text-purple-100 text-sm max-w-sm">
+                Create an account and start booking trusted care services for
+                your loved ones with confidence.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* RIGHT SIDE */}
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="flex flex-col justify-center p-8 sm:p-10"
+          >
+            <motion.div variants={item} className="mb-8 text-center">
+              <h1 className="text-2xl font-bold text-gray-900">
+                Create Your Account
+              </h1>
+              <p className="mt-2 text-sm text-gray-600">
+                Register to get started with CareNest
+              </p>
+            </motion.div>
+
+            {/* REGISTER FORM */}
+            <motion.form
+              onSubmit={handleRegister}
+              variants={item}
+              className="space-y-4"
+            >
+              <div className="relative">
+                <User className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                <input
+                  name="name"
+                  type="text"
+                  placeholder="Full Name"
+                  className="w-full rounded-lg border px-10 py-3 text-sm focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="relative">
+                <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Email address"
+                  className="w-full rounded-lg border px-10 py-3 text-sm focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="relative">
+                <Phone className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                <input
+                  name="phone"
+                  type="tel"
+                  placeholder="Contact Number"
+                  className="w-full rounded-lg border px-10 py-3 text-sm focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="relative">
+                <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                <input
+                  name="password"
+                  type={showPass ? "text" : "password"}
+                  placeholder="Password"
+                  className="w-full rounded-lg border px-10 py-3 text-sm focus:border-purple-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-3.5 text-gray-400"
+                >
+                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                type="submit"
+                className="w-full rounded-lg bg-purple-600 py-3 text-white font-medium hover:bg-purple-700 transition"
+              >
+                Create Account
+              </motion.button>
+            </motion.form>
+
+            {/* LOGIN LINK */}
+            <p className="mt-4 text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-medium text-purple-600 hover:underline"
+              >
+                Login here
+              </Link>
+            </p>
+          </motion.div>
+        </motion.div>
+      </section>
+    </>
+  );
+}
