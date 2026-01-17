@@ -17,11 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar />
         <SessionProviderWrapper>
+        <Navbar />
           <main className="min-h-screen">{children}</main>
-        </SessionProviderWrapper>
         <Footer />
+        </SessionProviderWrapper>
       </body>
     </html>
   );

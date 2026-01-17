@@ -4,15 +4,33 @@ import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { services } from "@/data/services";
 
 const ITEMS_PER_PAGE = 10;
+
 const categories = [
   { label: "All Services", value: "all" },
   { label: "Baby Care", value: "baby" },
   { label: "Elderly Care", value: "elderly" },
   { label: "Sick Care", value: "sick" },
 ];
+
+/* 🧩 Skeleton Card */
+function ServiceSkeleton() {
+  return (
+    <div className="animate-pulse bg-white rounded-2xl overflow-hidden shadow">
+      <div className="h-44 bg-gray-200" />
+      <div className="p-5 space-y-3">
+        <div className="h-4 bg-gray-200 rounded w-3/4" />
+        <div className="h-3 bg-gray-200 rounded w-full" />
+        <div className="h-3 bg-gray-200 rounded w-5/6" />
+        <div className="h-4 bg-gray-200 rounded w-1/3 mt-4" />
+        <div className="h-9 bg-gray-200 rounded mt-4" />
+      </div>
+    </div>
+  );
+}
 
 export default function ServicesPage() {
   const router = useRouter();
@@ -23,10 +41,19 @@ export default function ServicesPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(pageFromUrl);
+  const [loading, setLoading] = useState(true);
 
+  /* 🔄 keep page in sync */
   useEffect(() => {
     setCurrentPage(pageFromUrl);
   }, [pageFromUrl]);
+
+  /* ⏳ fake loading for skeleton */
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, [search, category, currentPage]);
 
   /* 🔍 SEARCH + CATEGORY FILTER */
   const filteredServices = useMemo(() => {
@@ -59,7 +86,12 @@ export default function ServicesPage() {
 
   return (
     <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-7xl mx-auto px-6"
+      >
         {/* HEADER */}
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold text-gray-900">
@@ -72,7 +104,6 @@ export default function ServicesPage() {
 
         {/* SEARCH + FILTER */}
         <div className="mb-8 flex flex-col gap-5">
-          {/* Search */}
           <input
             type="text"
             placeholder="Search services..."
@@ -84,7 +115,6 @@ export default function ServicesPage() {
             className="w-full rounded-xl border px-5 py-3 text-sm focus:outline-none focus:border-purple-500"
           />
 
-          {/* Category Filter */}
           <div className="flex flex-wrap gap-3">
             {categories.map((cat) => (
               <button
@@ -116,50 +146,60 @@ export default function ServicesPage() {
         </div>
 
         {/* SERVICES GRID */}
-        {paginatedServices.length > 0 ? (
+        {loading ? (
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {paginatedServices.map((service) => (
-              <div
-                key={service.id}
-                className="group bg-white rounded-2xl overflow-hidden shadow hover:shadow-2xl transition"
-              >
-                {/* Image */}
-                <div className="relative h-44 overflow-hidden">
-                  <Image
-                    src={service.image}
-                    alt={service.title}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                  <span className="absolute top-3 left-3 rounded-full bg-purple-600 px-3 py-1 text-xs text-white">
-                    {service.category.toUpperCase()}
-                  </span>
-                </div>
-
-                {/* Content */}
-                <div className="p-5 flex flex-col h-full">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {service.title}
-                  </h3>
-
-                  <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                    {service.shortDesc}
-                  </p>
-
-                  <p className="mt-3 text-purple-600 font-semibold">
-                    ৳{service.price} / day
-                  </p>
-
-                  <Link
-                    href={`/services/${service.id}?page=${currentPage}`}
-                    className="mt-5 inline-flex items-center justify-center rounded-lg border border-purple-600 px-4 py-2 text-sm font-medium text-purple-600 transition group-hover:bg-purple-600 group-hover:text-white"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ServiceSkeleton key={i} />
             ))}
           </div>
+        ) : paginatedServices.length > 0 ? (
+          <AnimatePresence>
+            <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {paginatedServices.map((service) => (
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                  className="group bg-white rounded-2xl overflow-hidden shadow hover:shadow-2xl transition"
+                >
+                  <div className="relative h-44 overflow-hidden">
+                    <Image
+                      src={service.image}
+                      alt={service.title}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <span className="absolute top-3 left-3 rounded-full bg-purple-600 px-3 py-1 text-xs text-white">
+                      {service.category.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <div className="p-5 flex flex-col h-full">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {service.title}
+                    </h3>
+
+                    <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                      {service.shortDesc}
+                    </p>
+
+                    <p className="mt-3 text-purple-600 font-semibold">
+                      ৳{service.price} / day
+                    </p>
+
+                    <Link
+                      href={`/services/${service.id}?page=${currentPage}`}
+                      className="mt-5 inline-flex items-center justify-center rounded-lg border border-purple-600 px-4 py-2 text-sm font-medium text-purple-600 transition group-hover:bg-purple-600 group-hover:text-white"
+                    >
+                      View Details
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </AnimatePresence>
         ) : (
           <div className="py-20 text-center text-gray-500">
             No services found
@@ -187,7 +227,7 @@ export default function ServicesPage() {
             })}
           </div>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 }
