@@ -1,8 +1,9 @@
+import RouteLoader from "@/components/RouteLoader";
 import Footer from "./components/common/Footer";
 import Navbar from "./components/common/Navbar";
 import SessionProviderWrapper from "./context/SessionProviderWrapper";
-import "./globals.css";
 
+import "./globals.css";
 
 export const metadata = {
   title: "CareNest",
@@ -18,9 +19,16 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <SessionProviderWrapper>
-        <Navbar />
-          <main className="min-h-screen">{children}</main>
-        <Footer />
+          {/* Global Route Change Loader */}
+          <RouteLoader />
+
+          <Navbar />
+
+          <main className="min-h-screen">
+            {children}
+          </main>
+
+          <Footer />
         </SessionProviderWrapper>
       </body>
     </html>
