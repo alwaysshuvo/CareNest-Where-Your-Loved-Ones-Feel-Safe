@@ -8,10 +8,7 @@ export async function GET() {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const client = await clientPromise;
@@ -28,7 +25,7 @@ export async function GET() {
     console.error("GET bookings error:", error);
     return NextResponse.json(
       { message: "Failed to fetch bookings" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -38,10 +35,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
@@ -50,16 +44,20 @@ export async function POST(req: Request) {
     const db = client.db("carenestDB");
 
     const booking = {
-      userEmail: session.user.email,
-      userName: session.user.name,
+      userEmail: session.user?.email,
+      userName: session.user?.name,
+
       serviceId: body.serviceId,
       serviceTitle: body.serviceTitle,
-      serviceImage: body.serviceImage || null,
+      serviceImage: body.serviceImage, 
+      
       price: body.price,
+
       phone: body.phone,
       address: body.address,
       date: body.date,
       notes: body.notes,
+
       status: "pending",
       createdAt: new Date(),
     };
@@ -69,9 +67,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("POST booking error:", error);
-    return NextResponse.json(
-      { message: "Booking failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Booking failed" }, { status: 500 });
   }
 }

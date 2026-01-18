@@ -19,6 +19,7 @@ export default function BookingSection({ service }: any) {
       body: JSON.stringify({
         serviceId: service.id,
         serviceTitle: service.title,
+        serviceImage: service.image,
         price: service.price,
         phone: form.phone.value,
         address: form.address.value,
@@ -71,12 +72,7 @@ export default function BookingSection({ service }: any) {
             />
           </div>
 
-          <input
-            type="date"
-            name="date"
-            required
-            className="input w-full"
-          />
+          <input type="date" name="date" required className="input w-full" />
 
           <textarea
             name="notes"
