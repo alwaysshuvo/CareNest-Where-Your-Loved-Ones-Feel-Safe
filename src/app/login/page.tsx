@@ -7,6 +7,7 @@ import { Mail, Lock, Github, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 /* Animation Variants */
 const container = {
@@ -19,41 +20,49 @@ const container = {
 
 const item = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
 };
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleEmailLogin = () => {
-    if (!email) {
-      toast.error("Email is required");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+
+  /* EMAIL LOGIN */
+  const handleEmailLogin = async () => {
+    if (!email || !password) {
+      toast.error("Email and password are required");
       return;
     }
 
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      toast.error("Invalid email address");
-      return;
-    }
+    setLoading(true);
 
-    if (!password) {
-      toast.error("Password is required");
-      return;
-    }
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+      callbackUrl,
+    });
 
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
+    setLoading(false);
 
-    toast.success("Email login system will be added later");
+    if (res?.error) {
+      toast.error("Invalid email or password");
+    } else {
+      toast.success("Login successful");
+      router.push(callbackUrl);
+    }
   };
 
   return (
     <>
       <Toaster position="top-right" />
+
       <section className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -81,8 +90,7 @@ export default function LoginPage() {
                 Trusted Care <br /> Starts Here
               </h2>
               <p className="text-purple-100 text-sm max-w-sm">
-                Manage care services for your loved ones with confidence, safety,
-                and ease.
+                Securely manage care services for your loved ones with CareNest.
               </p>
             </div>
           </motion.div>
@@ -96,10 +104,10 @@ export default function LoginPage() {
           >
             <motion.div variants={item} className="mb-8 text-center">
               <h1 className="text-2xl font-bold text-gray-900">
-                Welcome Back to CareNest
+                Welcome Back
               </h1>
               <p className="mt-2 text-sm text-gray-600">
-                Login to continue booking trusted care services
+                Login to continue with CareNest
               </p>
             </motion.div>
 
@@ -112,7 +120,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
                   placeholder="Email address"
-                  className="w-full rounded-lg border px-10 py-3 text-sm focus:border-purple-500 focus:outline-none"
+                  className="w-full rounded-lg border px-10 py-3 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100"
                 />
               </div>
 
@@ -123,24 +131,25 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   type={showPass ? "text" : "password"}
                   placeholder="Password"
-                  className="w-full rounded-lg border px-10 py-3 text-sm focus:border-purple-500 focus:outline-none"
+                  className="w-full rounded-lg border px-10 py-3 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-100"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-3.5 text-gray-400"
+                  className="absolute right-3 top-3.5 text-gray-400 hover:text-purple-600"
                 >
                   {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.03 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
+                disabled={loading}
                 onClick={handleEmailLogin}
-                className="w-full rounded-lg bg-purple-600 py-3 text-white font-medium hover:bg-purple-700 transition"
+                className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 py-3 text-white font-medium shadow-md hover:opacity-90 disabled:opacity-60"
               >
-                Login with Email
+                {loading ? "Logging in..." : "Login"}
               </motion.button>
             </motion.div>
 
@@ -165,7 +174,7 @@ export default function LoginPage() {
             {/* SOCIAL LOGIN */}
             <motion.div variants={item} className="space-y-3">
               <button
-                onClick={() => signIn("google")}
+                onClick={() => signIn("google", { callbackUrl })}
                 className="flex w-full items-center justify-center gap-3 rounded-lg border py-3 text-sm font-medium hover:bg-gray-50"
               >
                 <Image
@@ -178,7 +187,7 @@ export default function LoginPage() {
               </button>
 
               <button
-                onClick={() => signIn("github")}
+                onClick={() => signIn("github", { callbackUrl })}
                 className="flex w-full items-center justify-center gap-3 rounded-lg border py-3 text-sm font-medium hover:bg-gray-50"
               >
                 <Github className="h-5 w-5" />
