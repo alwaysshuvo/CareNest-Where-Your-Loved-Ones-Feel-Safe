@@ -26,3 +26,31 @@ export async function DELETE(
     deletedCount: result.deletedCount,
   });
 }
+export async function PATCH(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  const body = await req.json();
+
+  const { status, cancelReason } = body;
+
+  const client = await clientPromise;
+  const db = client.db("carenestDB");
+
+  const result = await db.collection("bookings").updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $set: {
+        status: status || "cancelled",
+        cancelReason,
+        cancelledAt: new Date(),
+      },
+    }
+  );
+
+  return NextResponse.json({
+    success: true,
+    message: "Booking cancelled successfully",
+  });
+}

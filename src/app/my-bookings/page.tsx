@@ -2,119 +2,60 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import BookingCard from "@/components/booking/BookingCard";
-import Swal from "sweetalert2";
 
 export default function MyBookingsPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
+  const router = useRouter();
 
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Fetch bookings (only when authenticated)
+  // 🔐 Private route
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
-    const fetchBookings = async () => {
-      try {
-        const res = await fetch("/api/bookings", {
-          credentials: "include", // 🔑 VERY IMPORTANT
+  // 📦 Load bookings
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/bookings")
+        .then((res) => res.json())
+        .then((data) => {
+          setBookings(data);
+          setLoading(false);
         });
-
-        if (!res.ok) {
-          setBookings([]);
-          return;
-        }
-
-        const data = await res.json();
-
-        // safety check
-        setBookings(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Fetch bookings error:", error);
-        setBookings([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBookings();
+    }
   }, [status]);
 
-  // 🔹 Cancel booking
-  const handleCancel = async (id: string) => {
-    const { value: reason } = await Swal.fire({
-      title: "Cancel booking?",
-      input: "select",
-      inputOptions: {
-        "Too expensive": "Too expensive",
-        "Taking too long": "Taking too long",
-        "Booked by mistake": "Booked by mistake",
-        Other: "Other",
-      },
-      inputPlaceholder: "Select a reason",
-      showCancelButton: true,
-    });
-
-    if (!reason) return;
-
-    try {
-      const res = await fetch(`/api/bookings/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        throw new Error("Delete failed");
-      }
-
-      const data = await res.json();
-
-      if (data.deletedCount > 0) {
-        setBookings((prev) => prev.filter((b) => b._id !== id));
-        Swal.fire("Cancelled", "Your booking has been cancelled", "success");
-      } else {
-        Swal.fire("Error", "Booking not found or not authorized", "error");
-      }
-    } catch (err) {
-      Swal.fire("Error", "Something went wrong. Try again.", "error");
-    }
+  // ✅ update booking after cancel
+  const handleCancelSuccess = (updatedBooking: any) => {
+    setBookings((prev) =>
+      prev.map((b) =>
+        b._id === updatedBooking._id ? updatedBooking : b
+      )
+    );
   };
 
-  // 🔒 If not logged in
-  if (status === "unauthenticated") {
-    return (
-      <section className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Please login to view your bookings</p>
-      </section>
-    );
-  }
+  if (loading) return <p className="p-10">Loading bookings...</p>;
 
   return (
-    <section className="bg-gray-50 py-16 min-h-screen">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* HEADER */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-gray-900">Booked Services</h1>
-          <p className="text-gray-500 mt-1">
-            Here is all your booked services
-          </p>
-        </div>
+    <section className="min-h-screen bg-gray-50 py-16">
+      <div className="max-w-6xl mx-auto px-6">
+        <h1 className="text-3xl font-bold mb-8">My Bookings</h1>
 
-        {/* STATES */}
-        {loading ? (
-          <p>Loading...</p>
-        ) : bookings.length === 0 ? (
-          <div className="rounded-xl bg-white py-20 text-center">
-            <p className="text-gray-600">You have no bookings yet</p>
-          </div>
+        {bookings.length === 0 ? (
+          <p>No bookings found</p>
         ) : (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
             {bookings.map((booking) => (
               <BookingCard
                 key={booking._id}
                 booking={booking}
-                onCancel={handleCancel}
+                onCancelSuccess={handleCancelSuccess}
               />
             ))}
           </div>

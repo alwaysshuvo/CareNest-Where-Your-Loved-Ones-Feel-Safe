@@ -16,10 +16,10 @@ const categories = [
   { label: "Sick Care", value: "sick" },
 ];
 
-/* 🧩 Skeleton Card */
+/* Skeleton */
 function ServiceSkeleton() {
   return (
-    <div className="animate-pulse bg-white rounded-2xl overflow-hidden shadow">
+    <div className="animate-pulse rounded-2xl bg-white shadow">
       <div className="h-44 bg-gray-200" />
       <div className="p-5 space-y-3">
         <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -43,19 +43,19 @@ export default function ServicesPage() {
   const [currentPage, setCurrentPage] = useState(pageFromUrl);
   const [loading, setLoading] = useState(true);
 
-  /* 🔄 keep page in sync */
+  /* Sync page */
   useEffect(() => {
     setCurrentPage(pageFromUrl);
   }, [pageFromUrl]);
 
-  /* ⏳ fake loading for skeleton */
+  /* Fake loading (UX) */
   useEffect(() => {
     setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 600);
+    const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, [search, category, currentPage]);
 
-  /* 🔍 SEARCH + CATEGORY FILTER */
+  /* Filter */
   const filteredServices = useMemo(() => {
     return services.filter((service) => {
       const matchSearch = service.title
@@ -69,10 +69,8 @@ export default function ServicesPage() {
     });
   }, [search, category]);
 
-  /* 📄 PAGINATION */
-  const totalPages = Math.ceil(
-    filteredServices.length / ITEMS_PER_PAGE
-  );
+  /* Pagination */
+  const totalPages = Math.ceil(filteredServices.length / ITEMS_PER_PAGE);
 
   const paginatedServices = filteredServices.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -85,15 +83,15 @@ export default function ServicesPage() {
   };
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="bg-gray-50 py-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto px-6"
+        className="mx-auto max-w-7xl px-6"
       >
-        {/* HEADER */}
-        <div className="text-center mb-12">
+        {/* Header */}
+        <div className="mb-12 text-center">
           <h1 className="text-3xl font-bold text-gray-900">
             Our Care Services
           </h1>
@@ -102,8 +100,8 @@ export default function ServicesPage() {
           </p>
         </div>
 
-        {/* SEARCH + FILTER */}
-        <div className="mb-8 flex flex-col gap-5">
+        {/* Search & Filter */}
+        <div className="mb-8 space-y-5">
           <input
             type="text"
             placeholder="Search services..."
@@ -112,7 +110,7 @@ export default function ServicesPage() {
               setSearch(e.target.value);
               changePage(1);
             }}
-            className="w-full rounded-xl border px-5 py-3 text-sm focus:outline-none focus:border-purple-500"
+            className="w-full rounded-xl border px-5 py-3 text-sm focus:border-purple-500 focus:outline-none"
           />
 
           <div className="flex flex-wrap gap-3">
@@ -126,7 +124,7 @@ export default function ServicesPage() {
                 className={`rounded-full px-5 py-2 text-sm font-medium transition ${
                   category === cat.value
                     ? "bg-purple-600 text-white"
-                    : "bg-white border hover:bg-purple-50"
+                    : "border bg-white hover:bg-purple-50"
                 }`}
               >
                 {cat.label}
@@ -135,9 +133,9 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        {/* RESULT INFO */}
-        <div className="mb-8 flex justify-between items-center rounded-lg bg-purple-50 px-5 py-3 text-sm">
-          <p className="text-purple-700 font-medium">
+        {/* Info */}
+        <div className="mb-8 flex items-center justify-between rounded-lg bg-purple-50 px-5 py-3 text-sm">
+          <p className="font-medium text-purple-700">
             Found {filteredServices.length} services
           </p>
           <p className="text-gray-600">
@@ -145,14 +143,14 @@ export default function ServicesPage() {
           </p>
         </div>
 
-        {/* SERVICES GRID */}
+        {/* Grid */}
         {loading ? (
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <ServiceSkeleton key={i} />
             ))}
           </div>
-        ) : paginatedServices.length > 0 ? (
+        ) : paginatedServices.length ? (
           <AnimatePresence>
             <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {paginatedServices.map((service) => (
@@ -162,7 +160,7 @@ export default function ServicesPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
-                  className="group bg-white rounded-2xl overflow-hidden shadow hover:shadow-2xl transition"
+                  className="group overflow-hidden rounded-2xl bg-white shadow transition hover:shadow-2xl"
                 >
                   <div className="relative h-44 overflow-hidden">
                     <Image
@@ -171,27 +169,27 @@ export default function ServicesPage() {
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-110"
                     />
-                    <span className="absolute top-3 left-3 rounded-full bg-purple-600 px-3 py-1 text-xs text-white">
+                    <span className="absolute left-3 top-3 rounded-full bg-purple-600 px-3 py-1 text-xs text-white">
                       {service.category.toUpperCase()}
                     </span>
                   </div>
 
-                  <div className="p-5 flex flex-col h-full">
+                  <div className="flex h-full flex-col p-5">
                     <h3 className="text-lg font-semibold text-gray-900">
                       {service.title}
                     </h3>
 
-                    <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                    <p className="mt-2 line-clamp-2 text-sm text-gray-600">
                       {service.shortDesc}
                     </p>
 
-                    <p className="mt-3 text-purple-600 font-semibold">
+                    <p className="mt-3 font-semibold text-purple-600">
                       ৳{service.price} / day
                     </p>
 
                     <Link
                       href={`/services/${service.id}?page=${currentPage}`}
-                      className="mt-5 inline-flex items-center justify-center rounded-lg border border-purple-600 px-4 py-2 text-sm font-medium text-purple-600 transition group-hover:bg-purple-600 group-hover:text-white"
+                      className="mt-5 inline-flex items-center justify-center rounded-lg border border-purple-600 px-4 py-2 text-sm font-medium text-purple-600 transition hover:bg-purple-600 hover:text-white"
                     >
                       View Details
                     </Link>
@@ -206,19 +204,19 @@ export default function ServicesPage() {
           </div>
         )}
 
-        {/* PAGINATION */}
+        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-14 flex justify-center gap-2 flex-wrap">
-            {Array.from({ length: totalPages }).map((_, index) => {
-              const page = index + 1;
+          <div className="mt-14 flex flex-wrap justify-center gap-2">
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const page = i + 1;
               return (
                 <button
                   key={page}
                   onClick={() => changePage(page)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                     currentPage === page
                       ? "bg-purple-600 text-white"
-                      : "bg-white border hover:bg-gray-100"
+                      : "border bg-white hover:bg-gray-100"
                   }`}
                 >
                   {page}

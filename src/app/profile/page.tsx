@@ -1,13 +1,20 @@
-export default function ProfilePage() {
-  return (
-    <section className="max-w-3xl mx-auto py-20 px-6">
-      <h1 className="text-3xl font-bold mb-6">My Profile</h1>
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import clientPromise from "@/lib/mongodb";
+import ProfileView from "@/components/profile/ProfileView";
+import { redirect } from "next/navigation";
 
-      <div className="bg-white rounded-2xl shadow p-6">
-        <p className="text-gray-600">
-          Here you can edit your name, profile photo, and other details.
-        </p>
-      </div>
-    </section>
-  );
+export default async function ProfilePage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) redirect("/login");
+
+  const client = await clientPromise;
+  const db = client.db("carenestDB");
+
+  const user = await db
+    .collection("users")
+    .findOne({ email: session.user.email });
+
+  return <ProfileView user={user} />;
 }

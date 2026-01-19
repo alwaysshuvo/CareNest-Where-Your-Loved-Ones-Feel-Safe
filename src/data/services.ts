@@ -1,5 +1,4 @@
 export const services = [
-  // ================= BABY CARE (1–10) =================
   {
     id: "baby-care-hourly",
     title: "Hourly Baby Care",
@@ -100,8 +99,6 @@ export const services = [
     image: "/assets/services/baby-10.jpg",
     category: "baby",
   },
-
-  // ================= ELDERLY CARE (11–20) =================
   {
     id: "elderly-care-hourly",
     title: "Hourly Elderly Care",
@@ -202,7 +199,6 @@ export const services = [
     image: "/assets/services/elderly-7.jpg",
     category: "elderly",
   },
-  // ================= ELDERLY CARE (21–30) =================
   {
     id: "elderly-dementia-care",
     title: "Dementia Care Service",
@@ -303,8 +299,6 @@ export const services = [
     image: "/assets/services/elderly-20.jpg",
     category: "elderly",
   },
-
-  // ================= SICK CARE (31–40) =================
   {
     id: "sick-care-hourly",
     title: "Hourly Sick Care",
@@ -405,7 +399,6 @@ export const services = [
     image: "/assets/services/sick-10.jpeg",
     category: "sick",
   },
-  // ================= SPECIAL & SICK CARE (41–50) =================
   {
     id: "post-surgery-sick-care",
     title: "Post Surgery Sick Care",
