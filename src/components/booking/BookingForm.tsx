@@ -4,35 +4,58 @@ import { useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 
-export default function BookingForm({ service }) {
+/* 🔹 Types */
+interface Service {
+  id: string;
+  title: string;
+  image: string;
+  price: number;
+}
+
+interface BookingFormProps {
+  service: Service;
+}
+
+export default function BookingForm({ service }: BookingFormProps) {
   const { data: session } = useSession();
 
-  const [duration, setDuration] = useState(1);
-  const [division, setDivision] = useState("");
-  const [district, setDistrict] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
-  const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [duration, setDuration] = useState<number>(1);
+  const [division, setDivision] = useState<string>("");
+  const [district, setDistrict] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // 💰 Total price auto calculate
-  const totalCost = useMemo(() => {
+  /* 💰 Total price auto calculate */
+  const totalCost = useMemo<number>(() => {
     return duration * service.price;
   }, [duration, service.price]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
     if (!phone || !division || !district || !address) {
-      Swal.fire("Missing info", "Please fill all required fields", "warning");
+      Swal.fire(
+        "Missing info",
+        "Please fill all required fields",
+        "warning"
+      );
+      return;
+    }
+
+    if (!session?.user?.email) {
+      Swal.fire("Unauthorized", "Please login first", "error");
       return;
     }
 
     setLoading(true);
 
     const bookingData = {
-      userName: session?.user?.name,
-      userEmail: session?.user?.email,
+      userName: session.user.name || "N/A",
+      userEmail: session.user.email,
       phone,
       serviceId: service.id,
       serviceTitle: service.title,
@@ -108,7 +131,7 @@ export default function BookingForm({ service }) {
         <label className="text-sm font-medium">Duration (days)</label>
         <input
           type="number"
-          min="1"
+          min={1}
           value={duration}
           onChange={(e) => setDuration(Number(e.target.value))}
           className="mt-1 w-full rounded-lg border px-4 py-2"

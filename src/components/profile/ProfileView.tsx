@@ -1,14 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import ProfileForm from "./ProfileForm";
 import Image from "next/image";
+import ProfileForm from "./ProfileForm";
 
-export default function ProfileView({ user }) {
-  const [edit, setEdit] = useState(false);
+/* 🔹 Types */
+interface User {
+  name: string;
+  email: string;
+  image?: string;
+  phone?: string;
+}
+
+interface ProfileViewProps {
+  user: User;
+}
+
+export default function ProfileView({ user }: ProfileViewProps) {
+  const [edit, setEdit] = useState<boolean>(false);
 
   if (edit) {
-    return <ProfileForm user={user} onCancel={() => setEdit(false)} />;
+    return (
+      <ProfileForm
+        user={user}
+        onCancel={() => setEdit(false)}
+      />
+    );
   }
 
   return (
@@ -27,8 +44,14 @@ export default function ProfileView({ user }) {
           className="mx-auto rounded-full object-cover"
         />
 
-        <h2 className="mt-4 text-xl font-semibold">{user.name}</h2>
-        <p className="text-gray-500">{user.email}</p>
+        <h2 className="mt-4 text-xl font-semibold">
+          {user.name}
+        </h2>
+
+        <p className="text-gray-500">
+          {user.email}
+        </p>
+
         <p className="text-gray-600 mt-1">
           📞 {user.phone || "Not added"}
         </p>

@@ -3,14 +3,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { Variants } from "framer-motion";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: (delay = 0) => ({
+const fadeUp: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 40,
+  },
+  visible: {
     opacity: 1,
     y: 0,
-    transition: { delay, duration: 0.8, ease: "easeOut" },
-  }),
+    transition: {
+      duration: 0.8,
+      ease: "easeOut",
+    },
+  },
 };
 
 const Hero = () => {

@@ -28,7 +28,7 @@ export default function RegisterPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔒 Already logged-in users → redirect
+  /* Redirect logged-in users */
   useEffect(() => {
     if (status === "authenticated") {
       router.replace("/my-bookings");
@@ -58,18 +58,18 @@ export default function RegisterPage() {
     }
   };
 
-  /* Register Handler */
-  const handleRegister = async (e: React.FormEvent) => {
+  /* Register Handler (BUILD SAFE) */
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    const form = e.target as HTMLFormElement;
+    const formData = new FormData(e.currentTarget);
 
-    const nid = (form.nid as HTMLInputElement).value;
-    const name = (form.name as HTMLInputElement).value;
-    const email = (form.email as HTMLInputElement).value;
-    const phone = (form.phone as HTMLInputElement).value;
-    const password = (form.password as HTMLInputElement).value;
+    const nid = formData.get("nid") as string;
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const phone = formData.get("phone") as string;
+    const password = formData.get("password") as string;
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/;
 
@@ -81,7 +81,7 @@ export default function RegisterPage() {
 
     if (!passwordRegex.test(password)) {
       toast.error(
-        "Password must be 6+ chars with uppercase & lowercase letters"
+        "Password must be at least 6 characters with uppercase & lowercase letters"
       );
       setLoading(false);
       return;
@@ -106,10 +106,7 @@ export default function RegisterPage() {
       if (!res.ok) throw new Error();
 
       toast.success("Account created successfully");
-
-      setTimeout(() => {
-        router.push("/login"); // ✅ redirect to booking page
-      }, 1200);
+      router.push("/login");
     } catch {
       toast.error("Registration failed");
     } finally {
@@ -212,7 +209,7 @@ export default function RegisterPage() {
 
               <button
                 disabled={loading}
-                className="w-full rounded-lg bg-purple-600 py-3 text-white font-medium hover:bg-purple-700"
+                className="w-full rounded-lg bg-purple-600 py-3 text-white font-medium hover:bg-purple-700 disabled:opacity-60"
               >
                 {loading ? "Creating Account..." : "Create Account"}
               </button>
